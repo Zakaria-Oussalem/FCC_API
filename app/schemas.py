@@ -7,6 +7,13 @@ class Post(BaseModel):
     publish: bool = True
 
 
+class PostCreate(BaseModel):
+    title: str
+    content: str
+    publish: bool = True
+    id: int
+
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
