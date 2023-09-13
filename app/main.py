@@ -1,23 +1,14 @@
-from datetime import datetime
-from typing import Optional
 from fastapi import Body, FastAPI, Response, status, HTTPException, Depends
-from pydantic import BaseModel, EmailStr
-from random import randrange
 import time
 from sqlalchemy.orm import Session
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from schemas import UserCreate, UserOurt, Post
 import models
 from database import engine, get_db
 from utils import hash
 
 models.Base.metadata.create_all(bind=engine)
-
-
-class Post(BaseModel):
-    title: str
-    content: str
-    publish: bool = True
 
 
 app = FastAPI()
@@ -72,21 +63,6 @@ def create_post(post: Post):
     return {"new_post": new_post}
 
 
-# @app.get('/posts/latest')
-# def get_latest_post():
-#     return {"post_detail": my_posts[-1]}
-
-# @app.get("/posts/{id}")
-# def get_post(id: int):
-#     post = find_post(id)
-#     if not post:
-#         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
-#         detail = f"post with id: {id} was not found")
-#         # response.status_code = status.HTTP_404_NOT_FOUND
-#         # return {"message": f"post with id: {id} was not found"}
-#     return {"post_detail": post}
-
-
 @app.get("/posts/{id}")
 def get_post(id: int):
     cursor.execute(""" SELECT * FROM posts WHERE id = %s """, (str(id)))
@@ -133,19 +109,6 @@ def update_post(id: int, post: Post):
     return {"data": updated_post}
 
 
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class UserOurt(BaseModel):
-    id: int
-    email: EmailStr
-
-    class config:
-        orm_mode = True
-
-
 @app.post("/users", status_code=status.HTTP_201_CREATED, response_model=UserOurt)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     # hash the password - user.password
@@ -159,3 +122,15 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return new_user
+
+
+@app.get("/users/{id}", response_model=UserOurt)
+def get_user(id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {id} does not exist",
+        )
+    return user
