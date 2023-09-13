@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Optional
 from fastapi import Body, FastAPI, Response, status, HTTPException, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from random import randrange
 import time
 from sqlalchemy.orm import Session
@@ -129,3 +130,26 @@ def update_post(id: int, post: Post):
         )
 
     return {"data": updated_post}
+
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserOurt(BaseModel):
+    id: int
+    email: EmailStr
+
+    class config:
+        orm_mode = True
+
+
+@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=UserOurt)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
