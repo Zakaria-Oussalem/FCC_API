@@ -5,7 +5,7 @@ import models
 from schemas import Post, PostCreate
 from database import get_db
 
-router = APIRouter(prefix="/posts")
+router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
 @router.get("/", response_model=List[Post])
