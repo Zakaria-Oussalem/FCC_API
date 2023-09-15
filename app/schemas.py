@@ -30,3 +30,7 @@ class UserOurt(BaseModel):
 class UserLogIn(BaseModel):
     email: EmailStr
     password: str
+
+
+class TokenData(BaseModel):
+    id: str
