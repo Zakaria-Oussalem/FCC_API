@@ -25,3 +25,8 @@ class UserOurt(BaseModel):
 
     class config:
         orm_mode = True
+
+
+class UserLogIn(BaseModel):
+    email: EmailStr
+    password: str
