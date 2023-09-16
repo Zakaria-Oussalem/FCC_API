@@ -1,24 +1,12 @@
 from pydantic import BaseModel, EmailStr
 
 
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
-
-
-class PostCreate(BaseModel):
-    title: str
-    content: str
-    published: bool = True
-
-
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
 
 
-class UserOurt(BaseModel):
+class UserOut(BaseModel):
     id: int
     email: EmailStr
 
@@ -29,6 +17,20 @@ class UserOurt(BaseModel):
 class UserLogIn(BaseModel):
     email: EmailStr
     password: str
+
+
+class Post(BaseModel):
+    title: str
+    content: str
+    published: bool = True
+    owner_id: int
+    owner: UserOut
+
+
+class PostCreate(BaseModel):
+    title: str
+    content: str
+    published: bool = True
 
 
 class TokenData(BaseModel):

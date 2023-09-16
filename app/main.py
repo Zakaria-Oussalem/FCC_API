@@ -3,7 +3,7 @@ import time
 from sqlalchemy.orm import Session
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from schemas import UserCreate, UserOurt, Post
+from schemas import UserCreate, UserOut, Post
 import models
 from database import engine, get_db
 from utils import hash

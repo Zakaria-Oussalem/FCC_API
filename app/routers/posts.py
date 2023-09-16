@@ -10,8 +10,11 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
 @router.get("/", response_model=List[Post])
-def get_posts(db: Session = Depends(get_db)):
+def get_posts(
+    db: Session = Depends(get_db), current_user: int = Depends(get_current_user)
+):
     posts = db.query(models.Post).all()
+
     return posts
 
 
@@ -21,7 +24,7 @@ def create_posts(
     db: Session = Depends(get_db),
     current_user: int = Depends(get_current_user),
 ):
-    new_post = models.Post(**post.model_dump())
+    new_post = models.Post(owner_id=current_user.id, **post.model_dump())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -30,12 +33,21 @@ def create_posts(
 
 
 @router.get("/{id}", response_model=Post)
-def get_post(id: int, db: Session = Depends(get_db)):
+def get_post(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"post with id: {id} was not found",
+        )
+    elif post.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"You are not the owner of post with id = : {id}",
         )
     return post
 
@@ -53,6 +65,11 @@ def delete_post(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"post with id: {id} was not found",
+        )
+    elif post.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"You are not the owner of post with id = : {id}",
         )
     post_query.delete(synchronize_session=False)
     db.commit()
@@ -74,6 +91,11 @@ def update_post(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"post with id: {id} was not found",
+        )
+    elif post.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"You are not the owner of post with id = : {id}",
         )
     post_query.update(updated_post.model_dump(), synchronuize_session=False)
 
