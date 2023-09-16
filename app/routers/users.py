@@ -1,6 +1,6 @@
 from fastapi import Body, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
-from schemas import UserCreate, UserOut, Post
+from schemas import UserCreate, UserOut
 import models
 from database import get_db
 from utils import hash
