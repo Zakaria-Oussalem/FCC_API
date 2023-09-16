@@ -90,7 +90,7 @@ def update_post(
     id: int,
     updated_post: PostCreate,
     db: Session = Depends(get_db),
-    user_current_user: int = Depends(get_current_user),
+    current_user: int = Depends(get_current_user),
 ):
     post_query = db.query(models.Post).filter(models.Post.id == id)
     post = post_query.first()
