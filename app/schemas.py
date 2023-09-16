@@ -4,14 +4,13 @@ from pydantic import BaseModel, EmailStr
 class Post(BaseModel):
     title: str
     content: str
-    publish: bool = True
+    published: bool = True
 
 
 class PostCreate(BaseModel):
     title: str
     content: str
-    publish: bool = True
-    id: int
+    published: bool = True
 
 
 class UserCreate(BaseModel):
@@ -34,3 +33,8 @@ class UserLogIn(BaseModel):
 
 class TokenData(BaseModel):
     id: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
