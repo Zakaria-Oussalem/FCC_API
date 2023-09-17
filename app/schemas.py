@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, conint
 
 
 class UserCreate(BaseModel):
@@ -27,6 +27,11 @@ class Post(BaseModel):
     owner: UserOut
 
 
+class PostOut(BaseModel):
+    Post: Post
+    votes: int
+
+
 class PostCreate(BaseModel):
     title: str
     content: str
@@ -40,3 +45,8 @@ class TokenData(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class Vote(BaseModel):
+    post_id: int
+    dir: conint(le=1)
