@@ -43,22 +43,23 @@ def create_posts(
     return new_post
 
 
-@router.get("/{id}", response_model=Post)
+@router.get("/{id}", response_model=PostOut)
 def get_post(
     id: int,
     db: Session = Depends(get_db),
     current_user: int = Depends(get_current_user),
 ):
-    post = db.query(models.Post).filter(models.Post.id == id).first()
+    post = (
+        db.query(models.Post, func.count(models.Vote.post_id).label("votes"))
+        .join(models.Vote, models.Vote.post_id == models.Post.id, isouter=True)
+        .group_by(models.Post.id)
+        .filter(models.Post.id == id)
+        .first()
+    )
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"post with id: {id} was not found",
-        )
-    elif post.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"You are not the owner of post with id = : {id}",
         )
     return post
 
